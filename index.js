@@ -2,7 +2,7 @@ const express = require('express');
 const axios = require('axios');
 
 // Configuration
-const PORT = process.env.PORT || 8080,
+const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 10000) : 8080,
     REPO = 'https://github.com/' + (process.env.RENDER_GIT_REPO_SLUG || 'humanfriend22/cors-proxy');
 
 // Initialize Express App
