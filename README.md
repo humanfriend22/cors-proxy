@@ -4,7 +4,9 @@
 
 This is a simple cors proxy for development.
 
-I host my proxy on [Render] as a `Web Service` and then link the `/health` endpoint to a cron job at [cron-job.org](https://cron-job.org)
+I host my proxy on [Render] as a `Web Service`.
+
+> DON'T USE THIS IN PRODUCTION!
 
 ### Hosting
 1. Fork this repository
