@@ -26,6 +26,8 @@ app.get('/', async (request, response) => {
 
         const { data } = await axios.get(url);
 
+        response.setHeader('Access-Control-Allow-Origin', '*');
+
         response.json(data);
     } catch (error) {
         // Filter Error Text
