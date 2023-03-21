@@ -26,25 +26,26 @@ app.get('/', async (request, response) => {
 
         const { data } = await axios.get(url);
 
+        // The whole point of this proxy: CORS!
         response.setHeader('Access-Control-Allow-Origin', '*');
 
         response.json(data);
     } catch (error) {
         // Filter Error Text
-        const statusText = parseInt(error.message.replace('Request failed with status code ', ''));
+        const status = parseInt(error.message.replace('Request failed with status code ', ''));
 
         // Fallback Status Code
-        const status = statusText !== statusText ? 400 : statusText;
+        const code = isNan(status) ? 400 : status;
 
         response.status(status).json({
-            code: status,
+            code,
             message: error.code,
             url
         });
     };
 });
 
-// Health Endpoint (https://cron-job.org)
+// Health Endpoint
 app.get('/health', (request, response) => {
     response.status(200).json({});
 });
