@@ -1,5 +1,4 @@
 const express = require('express');
-const axios = require('axios');
 
 // Configuration
 const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 10000) : 8080,
@@ -8,7 +7,6 @@ const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 10000)
 // Initialize Express App
 const app = express();
 
-// Static Route (usually a browser)
 app.get('/', async (request, response) => {
     const { url } = request.query;
 
@@ -24,18 +22,18 @@ app.get('/', async (request, response) => {
             return;
         }
 
-        const { data } = await axios.get(url);
-
         // The whole point of this proxy: CORS!
         response.setHeader('Access-Control-Allow-Origin', '*');
 
-        response.json(data);
+        response.json(
+            await (await fetch(url)).json()
+        );
     } catch (error) {
         // Filter Error Text
         const status = parseInt(error.message.replace('Request failed with status code ', ''));
 
         // Fallback Status Code
-        const code = isNan(status) ? 400 : status;
+        const code = status || 400;
 
         response.status(status).json({
             code,
@@ -46,8 +44,8 @@ app.get('/', async (request, response) => {
 });
 
 // Health Endpoint
-app.get('/health', (request, response) => {
-    response.status(200).json({});
+app.get('/health', (_, response) => {
+    response.sendStatus(200);
 });
 
 app.listen(PORT);
