@@ -4,8 +4,8 @@
   "description": "A super lightweight cors proxy",
   "main": "index.js",
   "scripts": {
-    "start": "node .",
-    "dev": "nodemon"
+    "start": "node docker",
+    "dev": "nodemon docker"
   },
   "repository": {
     "type": "git",
@@ -17,11 +17,7 @@
     "url": "https://github.com/humanfriend22/cors-proxy/issues"
   },
   "homepage": "https://github.com/humanfriend22/cors-proxy#readme",
-  "dependencies": {
-    "express": "^4.18.2"
-  },
   "devDependencies": {
-    "@types/express": "^4.17.14",
     "nodemon": "^2.0.20"
   }
 }

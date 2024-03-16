@@ -1,51 +1,72 @@
-const express = require('express');
-
-// Configuration
-const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 10000) : 8080,
+// For https://render.com
+const PORT = process.env.RENDER ? (process.env.PORT || 10000) : 8080,
     REPO = 'https://github.com/' + (process.env.RENDER_GIT_REPO_SLUG || 'humanfriend22/cors-proxy');
 
-// Initialize Express App
-const app = express();
+const server = require('http').createServer(async (request, response) => {
+    if (request.method !== 'GET') {
+        response.writeHead(405);
+        response.write('Method Not Allowed');
+        response.end();
+        return;
+    }
 
-app.get('/', async (request, response) => {
-    const { url } = request.query;
+    if (request.url === '/') {
+        response.write(`A simple CORS proxy. See <a href="${REPO}">${REPO}</a>`);
+        response.end();
+        return;
+    }
 
-    if (!url) return response.redirect(REPO);
+    if (request.url === '/health') {
+        response.writeHead(200);
+        response.write('ok');
+        response.end();
+        return;
+    }
 
-    try {
-        if (url === '') {
-            response.json({
-                code: 400,
-                message: 'ERR_BAD_REQUEST',
-                url
-            });
-            return;
-        }
+    const params = new URLSearchParams(request.url.slice(2));
 
-        // The whole point of this proxy: CORS!
-        response.setHeader('Access-Control-Allow-Origin', '*');
+    const url = params.get('url'),
+        type = params.get('type') || 'json';
 
-        response.json(
-            await (await fetch(url)).json()
-        );
-    } catch (error) {
-        // Filter Error Text
-        const status = parseInt(error.message.replace('Request failed with status code ', ''));
+    if (!url || url === '') {
+        response.writeHead(400);
+        response.write(JSON.stringify({
+            code: 400,
+            message: 'Please provide valid url',
+        }));
+        response.end();
+        return;
+    }
 
-        // Fallback Status Code
-        const code = status || 400;
+    if (type !== 'json' && type !== 'text') {
+        response.writeHead(400);
+        response.write(JSON.stringify({
+            code: 400,
+            message: 'Invalid type (json or text)',
+        }));
+        response.end();
+        return;
+    }
 
-        response.status(status).json({
-            code,
-            message: error.code,
-            url
+    if (url && url !== '') {
+        const externalResponse = await fetch(url);
+        const data = type === 'text' ? await externalResponse.text() : await externalResponse.json();
+        response.writeHead(200, {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': type === 'text' ? 'text/html; charset=utf-8' : 'application/json'
         });
-    };
+        response.write(JSON.stringify(data));
+        response.end();
+        return;
+    }
+
+    console.error('Checks failed!');
+    console.error(url);
+    response.writeHead(500);
+    response.end();
 });
 
-// Health Endpoint
-app.get('/health', (_, response) => {
-    response.sendStatus(200);
-});
+console.log('Server Created! See https://github.com/humanfriend22/cors-proxy for documentation.');
 
-app.listen(PORT);
+console.log('Listening on port ' + PORT);
+server.listen(PORT);
