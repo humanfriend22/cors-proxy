@@ -8,7 +8,7 @@ This is a simple cors proxy for development. I used to host it on [Render] but t
 
 ### Usage
 The api accepts 2 query parameters at the root path:
-- 'type': `json` or `text`
+- `type`: `json` or `text`
 - `url`: The api endpoint.
 
 There isn't any support for headers as I didn't need it. Open an issue if you think that would be helpful in a lightweight proxy like this.
