@@ -17,7 +17,9 @@ const server = require('http').createServer(async (request, response) => {
     }
 
     if (request.url === '/health') {
-        response.writeHead(200);
+        response.writeHead(200, {
+            'Access-Control-Allow-Origin': '*',
+        });
         response.write('ok');
         response.end();
         return;
